@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
@@ -30,8 +31,7 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        byte[] bytes = Base64.getDecoder().decode(secretKey);
-        key = Keys.hmacShaKeyFor(bytes);
+        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(Long userId, String email, UserRole userRole) {
@@ -48,18 +48,40 @@ public class JwtUtil {
                         .compact();
     }
 
+    // TODO1-3: 유저 조회 시 유효하지 않은 JWT 라고 에러남
     public String substringToken(String tokenValue) {
-        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
-            return tokenValue.substring(7);
+//        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
+//            return tokenValue.substring(BEARER_PREFIX.length()).trim();
+//        }
+        // 헤더가 비어 있을 때 명확한 예외
+        if (!StringUtils.hasText(tokenValue)) {
+            throw new IllegalArgumentException("JWT 토큰이 존재하지 않습니다.");
+//            return tokenValue.substring(BEARER_PREFIX.length()).trim();
         }
-        throw new ServerException("Not Found Token");
+        String token = tokenValue.trim();
+        // Bearer가 2번 이상 붙어도 모두 제거,
+        while (token.startsWith(BEARER_PREFIX)) {
+            token = token.substring(BEARER_PREFIX.length()).trim();
+        }
+        // 접두사 제거 후에도 비어있으면 즉시 실패!
+        if (!StringUtils.hasText(token)) {
+            throw new IllegalArgumentException("JWT 토큰이 비어 있습니다.");
+        }
+        log.debug("JWT 토큰 추출 완료: {}", token);
+        return token;
+//        throw new ServerException("Not Found Token");
     }
 
     public Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            log.error("JWT 파싱 실패", token, e);
+            throw e;
+        }
     }
 }
