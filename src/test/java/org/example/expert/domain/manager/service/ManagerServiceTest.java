@@ -52,6 +52,7 @@ class ManagerServiceTest {
         assertEquals("Todo not found", exception.getMessage());
     }
 
+    // 서비스에서 getUser().getId()를 접근하다가 NPE발생
     @Test
     void todo의_user가_null인_경우_예외가_발생한다() {
         // given
