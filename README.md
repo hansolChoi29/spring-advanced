@@ -44,7 +44,7 @@ fork → clone → 로컬 개발
 
 - 기존 fetch join 기반 → @EntityGraph로 변경
 
-> Lv 3. 테스트코드 연습
+## Lv 3. 테스트코드 연습
 
 > 3-1) PassEncoderTest – matches 정상 동작
 
