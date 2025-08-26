@@ -1,6 +1,5 @@
 # 과제
 
----
 <details>
 <summary>학습목표</summary>
 
