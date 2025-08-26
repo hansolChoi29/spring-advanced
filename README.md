@@ -10,7 +10,7 @@
 - 아래 예시를 참고하여 학습 과정을 점검하거나 학습 계획을 세워 보세요.
 
 
-  ### Spring Advanced – 과제 기록 </br>
+### Spring Advanced – 과제 기록 </br>
   >과제 진행 방법
 
 fork → clone → 로컬 개발
